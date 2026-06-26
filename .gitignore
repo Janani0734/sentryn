@@ -1,0 +1,17 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+.env
+
+# ML Model cache
+.cache/
+*.safetensors
+
+# IDE
+.vscode/
+*.code-workspace
+
+# Logs
+*.log
