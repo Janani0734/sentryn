@@ -16,10 +16,10 @@ r = redis.Redis(host='localhost', port=6379, decode_responses=True)
 qdrant = QdrantClient(host="localhost", port=6333, check_compatibility=False)
 
 # Load embedding model once
-model = SentenceTransformer('all-MiniLM-L6-v2')
+model = SentenceTransformer('nomic-ai/nomic-embed-text-v1.5', trust_remote_code=True)
 
 COLLECTION_NAME = "sentryn_agent_vectors"
-VECTOR_SIZE = 384
+VECTOR_SIZE = 768
 
 try:
     qdrant.get_collection(COLLECTION_NAME)
