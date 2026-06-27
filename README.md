@@ -19,13 +19,13 @@ The result: runaway API costs, infrastructure instability, data corruption. Sent
 AI Agent → Go Fiber Gateway (8080) → Python Oversight Engine (8000) → Redis + Qdrant
 
 - Go Fiber Gateway — high-speed ingestion layer that scrubs credentials from every payload before forwarding
-- Python Oversight Engine — converts agent reasoning into 384-dimension semantic vectors using all-MiniLM-L6-v2 and runs kinematic loop detection
+- Python Oversight Engine — converts agent reasoning into 768-dimension semantic vectors using nomic-embed-text-v1.5 and runs kinematic loop detection
 - Redis — stores per-agent execution history for real-time state tracking
 - Qdrant — stores vector embeddings for permanent audit trail
 
 ## How Loop Detection Works
 
-Every agent action is converted into a semantic vector using all-MiniLM-L6-v2 running locally. Sentryn tracks these vectors across time using kinematic equations:
+Every agent action is converted into a semantic vector using nomic-embed-text-v1.5 running locally. Sentryn tracks these vectors across time using kinematic equations:
 
 - Velocity = semantic distance between consecutive actions / time delta
 - Acceleration = change in velocity / time delta
@@ -42,7 +42,7 @@ When an agent gets stuck in a loop, its reasoning stops changing — velocity dr
 
 - Go + Fiber — gateway layer
 - Python + FastAPI + Uvicorn — oversight engine
-- sentence-transformers all-MiniLM-L6-v2 — local semantic embeddings
+- sentence-transformers nomic-embed-text-v1.5 — local semantic embeddings
 - Redis — agent state memory
 - Qdrant — vector storage
 - Docker — infrastructure
