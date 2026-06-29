@@ -18,3 +18,4 @@ requests==2.32.3
 sentence-transformers==3.0.1
 einops==0.8.0
 torch==2.3.1 --extra-index-url https://pytorch.org
+# infra: production deploy baseline verification v1.0
