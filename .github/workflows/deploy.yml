@@ -1,0 +1,33 @@
+name: Deploy Sentryn to Azure
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Login to Azure Container Registry
+      uses: docker/login-action@v2
+      with:
+        registry: sentrynregistry.azurecr.io
+        username: ${{ secrets.ACR_USERNAME }}
+        password: ${{ secrets.ACR_PASSWORD }}
+    
+    - name: Build and push engine
+      uses: docker/build-push-action@v4
+      with:
+        context: ./src/sentryn/agent-oversight-core/engine
+        push: true
+        tags: sentrynregistry.azurecr.io/sentryn-engine:latest
+
+    - name: Deploy to Azure Container Apps
+      uses: azure/container-apps-deploy-action@v1
+      with:
+        acrName: sentrynregistry
+        containerAppName: sentryn-engine
+        resourceGroup: sentryn-rg
+        imageToDeploy: sentrynregistry.azurecr.io/sentryn-engine:latest
