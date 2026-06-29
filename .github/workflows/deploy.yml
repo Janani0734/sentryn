@@ -9,20 +9,27 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    
-    - name: Login to Azure Container Registry
-      uses: docker/login-action@v2
+
+    - name: Authenticate with Microsoft Azure
+      uses: azure/login@v1
       with:
-        registry: sentrynregistry.azurecr.io
-        username: ${{ secrets.ACR_USERNAME }}
-        password: ${{ secrets.ACR_PASSWORD }}
-    
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Log in to Azure Container Registry
+      run: |
+        az acr login --name sentrynregistry
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+
     - name: Build and push engine
       uses: docker/build-push-action@v4
       with:
         context: ./src/sentryn/agent-oversight-core/engine
         push: true
         tags: sentrynregistry.azurecr.io/sentryn-engine:latest
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
 
     - name: Deploy to Azure Container Apps
       uses: azure/container-apps-deploy-action@v1
