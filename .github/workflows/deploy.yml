@@ -35,6 +35,8 @@ jobs:
       uses: azure/container-apps-deploy-action@v1
       with:
         acrName: sentrynregistry
+        acrUsername: ${{ secrets.ACR_USERNAME }}
+        acrPassword: ${{ secrets.ACR_PASSWORD }}
         containerAppName: sentryn-engine
         resourceGroup: sentryn-rg
         imageToDeploy: sentrynregistry.azurecr.io/sentryn-engine:latest
