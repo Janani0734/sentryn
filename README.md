@@ -1,5 +1,7 @@
 # Sentryn — AI Agent Guardrail Platform
 
+**🟢 Live Demo:** https://sentryn-engine.ambitioushill-87ee6da5.koreacentral.azurecontainerapps.io
+
 Sentryn is an enterprise AI governance middleware that sits between autonomous AI agents and critical production systems. It intercepts every agent action before execution, detects recursive execution loops using kinematic mathematics, and trips a circuit breaker before damage occurs.
 
 ## The Problem Sentryn Solves
