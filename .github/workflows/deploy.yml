@@ -40,3 +40,5 @@ jobs:
         containerAppName: sentryn-engine
         resourceGroup: sentryn-rg
         imageToDeploy: sentrynregistry.azurecr.io/sentryn-engine:latest
+        targetPort: 8000
+        ingress: external
