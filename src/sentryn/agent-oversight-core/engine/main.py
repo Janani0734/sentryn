@@ -5,12 +5,18 @@ import time
 import json
 import re
 import os
+import random
 
 app = FastAPI(title="Sentryn Oversight Engine")
 
-REDIS_HOST = os.getenv("REDIS_HOST", "localhost")
+REDIS_HOST = os.getenv("REDIS_HOST", "sentryn-redis")
+QDRANT_HOST = os.getenv("QDRANT_HOST", "sentryn-qdrant")
 
 r = None
+qdrant = None
+model = None
+COLLECTION_NAME = "sentryn_agent_vectors"
+VECTOR_SIZE = 10
 
 def get_redis():
     global r
@@ -18,6 +24,24 @@ def get_redis():
         import redis
         r = redis.Redis(host=REDIS_HOST, port=6379, decode_responses=True, socket_connect_timeout=2)
     return r
+
+def get_qdrant():
+    global qdrant
+    if qdrant is None:
+        from qdrant_client import QdrantClient
+        from qdrant_client.models import Distance, VectorParams
+        qdrant = QdrantClient(host=QDRANT_HOST, port=6333, check_compatibility=False, timeout=3)
+        try:
+            qdrant.get_collection(COLLECTION_NAME)
+        except Exception:
+            try:
+                qdrant.create_collection(
+                    collection_name=COLLECTION_NAME,
+                    vectors_config=VectorParams(size=VECTOR_SIZE, distance=Distance.COSINE)
+                )
+            except Exception:
+                pass
+    return qdrant
 
 INJECTION_PATTERNS = re.compile(
     r'(ignore previous|disregard|you are now|jailbreak|bypass|'
@@ -70,6 +94,20 @@ def evaluate(action: AgentAction):
     current_vector = simple_hash_vectorizer(state_sig)
     current_mass = DESTRUCTIVE_MASS.get(action.action_verb.upper(), 20)
 
+    try:
+        client = get_qdrant()
+        from qdrant_client.models import PointStruct
+        client.upsert(
+            collection_name=COLLECTION_NAME,
+            points=[PointStruct(
+                id=random.randint(1, 999999999),
+                vector=current_vector,
+                payload={"agent_id": action.agent_id, "action_verb": action.action_verb, "target_resource": action.target_resource, "timestamp": current_time}
+            )]
+        )
+    except Exception:
+        pass
+
     history_key = f"sentryn:history:{action.agent_id}"
     try:
         client = get_redis()
@@ -111,7 +149,19 @@ def evaluate(action: AgentAction):
 
 @app.get("/health")
 def health():
-    return {"status": "Sentryn Engine Online"}
+    redis_ok = False
+    qdrant_ok = False
+    try:
+        get_redis().ping()
+        redis_ok = True
+    except Exception:
+        pass
+    try:
+        get_qdrant()
+        qdrant_ok = True
+    except Exception:
+        pass
+    return {"status": "Sentryn Engine Online", "redis_connected": redis_ok, "qdrant_connected": qdrant_ok}
 
 @app.get("/")
 def root():
