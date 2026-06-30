@@ -1,39 +1,20 @@
 version: '3.8'
 
 services:
-  sentryn_redis:
+  sentryn-redis:
     image: redis:7.2-alpine
-    container_name: sentryn_redis
-    command: redis-server --appendonly yes --maxmemory 512mb --maxmemory-policy allkeys-lru
+    container_name: sentryn-redis
+    command: redis-server --protected-mode no
     ports:
-      - "6379:6379"
-    volumes:
-      - redis_state_data:/data
-    networks:
-      - sentryn_mesh
-    restart: unless-stopped
+      - "0.0.0.0:6379:6379"
+    restart: always
 
-  sentryn_qdrant:
+  sentryn-qdrant:
     image: qdrant/qdrant:v1.9.0
-    container_name: sentryn_qdrant
+    container_name: sentryn-qdrant
     ports:
-      - "6333:6333"
-      - "6334:6334"
+      - "0.0.0.0:6333:6333"
+      - "0.0.0.0:6334:6334"
     volumes:
-      - qdrant_vector_storage:/qdrant/storage
-    networks:
-      - sentryn_mesh
-    restart: unless-stopped
-    environment:
-      - QDRANT__TELEMETRY_DISABLED=true
-
-volumes:
-  redis_state_data:
-    name: sentryn_redis_state_persistent
-  qdrant_vector_storage:
-    name: sentryn_qdrant_vectors_persistent
-
-networks:
-  sentryn_mesh:
-    name: sentryn_isolated_network_mesh
-    driver: bridge
+      - ./qdrant_storage:/qdrant/storage:z
+    restart: always
