@@ -36,7 +36,7 @@ def get_qdrant():
     if qdrant is None:
         from qdrant_client import QdrantClient
         from qdrant_client.models import Distance, VectorParams
-        qdrant = QdrantClient(host=QDRANT_HOST, port=6333, check_compatibility=False, timeout=10, prefer_grpc=False)
+        qdrant = QdrantClient(host=QDRANT_HOST, port=6333, timeout=10, prefer_grpc=False)
         try:
             qdrant.get_collection(COLLECTION_NAME)
         except Exception:
