@@ -32,22 +32,8 @@ def get_redis():
     return r
 
 def get_qdrant():
-    global qdrant
-    if qdrant is None:
-        from qdrant_client import QdrantClient
-        from qdrant_client.models import Distance, VectorParams
-        qdrant = QdrantClient(host=QDRANT_HOST, port=6333, timeout=10, prefer_grpc=False)
-        try:
-            qdrant.get_collection(COLLECTION_NAME)
-        except Exception:
-            try:
-                qdrant.create_collection(
-                    collection_name=COLLECTION_NAME,
-                    vectors_config=VectorParams(size=VECTOR_SIZE, distance=Distance.COSINE)
-                )
-            except Exception as e:
-                logger.warning(f"Qdrant collection setup failed: {e}")
-    return qdrant
+    import qdrant_http
+    return qdrant_http
 
 def get_model():
     global model
@@ -133,16 +119,8 @@ def evaluate(action: AgentAction, _auth: bool = Depends(verify_api_key)):
     current_mass = DESTRUCTIVE_MASS.get(action.action_verb.upper(), 20)
 
     try:
-        client = get_qdrant()
-        from qdrant_client.models import PointStruct
-        client.upsert(
-            collection_name=COLLECTION_NAME,
-            points=[PointStruct(
-                id=random.randint(1, 999999999),
-                vector=current_vector,
-                payload={"agent_id": action.agent_id, "action_verb": action.action_verb, "target_resource": action.target_resource, "timestamp": current_time}
-            )]
-        )
+        import qdrant_http
+        qdrant_http.upsert_vector(current_vector, {"agent_id": action.agent_id, "action_verb": action.action_verb, "target_resource": action.target_resource, "timestamp": current_time})
     except Exception as e:
         logger.warning(f"Qdrant write failed: {e}")
         degraded["qdrant"] = True
@@ -201,8 +179,8 @@ def health():
     except Exception:
         pass
     try:
-        get_qdrant()
-        qdrant_ok = True
+        import qdrant_http
+        qdrant_ok = qdrant_http.health_check()
     except Exception:
         pass
     try:
