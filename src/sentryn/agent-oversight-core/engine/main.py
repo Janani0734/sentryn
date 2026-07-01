@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Header, HTTPException, Depends
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, field_validator
 import math
 import time
@@ -12,6 +13,16 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("sentryn")
 
 app = FastAPI(title="Sentryn Oversight Engine")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:5173",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 REDIS_HOST = os.getenv("REDIS_HOST", "sentryn-redis")
 QDRANT_HOST = os.getenv("QDRANT_HOST", "sentryn-qdrant")
