@@ -2,13 +2,16 @@ import http.client
 import json
 import random
 import os
+import logging
+
+logger = logging.getLogger("sentryn")
 
 QDRANT_HOST = os.getenv("QDRANT_HOST", "sentryn-qdrant")
 QDRANT_PORT = 6333
 COLLECTION = "sentryn_agent_vectors"
 VECTOR_SIZE = 768
 
-def _request(method, path, body=None, timeout=8):
+def _request(method, path, body=None, timeout=15):
     conn = http.client.HTTPConnection(QDRANT_HOST, QDRANT_PORT, timeout=timeout)
     headers = {"Content-Type": "application/json"} if body else {}
     conn.request(method, path, json.dumps(body) if body else None, headers)
@@ -36,7 +39,8 @@ def upsert_vector(vector, payload):
 
 def health_check():
     try:
-        status, _ = _request("GET", "/collections", timeout=5)
+        status, _ = _request("GET", "/collections", timeout=15)
         return status == 200
-    except Exception:
+    except Exception as e:
+        logger.warning(f"Qdrant health check failed: {e}")
         return False
