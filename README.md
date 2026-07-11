@@ -1,15 +1,4 @@
-Yes! Update README directly on GitHub:
-
-Go to 👉 https://github.com/Janani0734/sentryn
-Click on README.md file
-Click the pencil icon (Edit) top right
-Select all (Ctrl+A) and delete everything
-Paste the new README content below
-Click "Commit changes" button
-
-
-Here's the content to paste:
-markdown# Sentryn — AI Agent Guardrail Platform
+# Sentryn - AI Agent Guardrail Platform
 
 **🟢 Live Demo:** https://sentryn-engine.ambitioushill-87ee6da5.koreacentral.azurecontainerapps.io
 **📖 API Docs:** https://sentryn-engine.ambitioushill-87ee6da5.koreacentral.azurecontainerapps.io/docs
