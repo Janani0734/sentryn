@@ -42,3 +42,10 @@ jobs:
         imageToDeploy: sentrynregistry.azurecr.io/sentryn-engine:latest
         targetPort: 8000
         ingress: external
+
+    - name: Set environment variables
+      run: |
+        az containerapp update \
+          --name sentryn-engine \
+          --resource-group sentryn-rg \
+          --set-env-vars "SENTRYN_API_KEY=secretref:sentryn-api-key" "QDRANT_HOST=sentryn-qdrant.internal.ambitioushill-87ee6da5.koreacentral.azurecontainerapps.io"
